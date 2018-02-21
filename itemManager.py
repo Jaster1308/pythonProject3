@@ -65,4 +65,15 @@ def new_item():
     cur.execute('PRAGMA foreign_keys = ON')
     cur.execute('INSERT INTO itemStore VALUES (?, ?, ?, ?)', (None, ven_id, name_item, price_item))
 
+# I need to delete items that we might not need anymore
+def delete_item():
+    global db
+    global cur
+    #show list of what you have already
+    cur.execute('SELECT * FROM itemStore').fetchall()
+
+    id_item = input("Which item do you want to delete? ")
+
+    cur.execute('DELETE FROM itemStore WHERE id_item = ?', id_item)
+
 #sold is a little different since its taking away from the items table
