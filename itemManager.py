@@ -8,14 +8,32 @@ with sqlite3.connect(db_name) as db:
 # get current date for the venues and not have to type it
 Current_Date = datetime.datetime.now()
 
+
+def main():
+
+
+    quit = 'stop'
+    choice = None
+
+    while choice != quit:
+        choice = ui.make_choice()
+        handle_choice(choice)
+
+
 def handle_choice(choice):
 
     if choice == '1':
+        new_venue()
     elif choice == '2':
+        new_item()
     elif choice == '3':
+        delete_item()
     elif choice == '4':
-    elif choice == '5':
-    elif choice == '6':
+
+    # elif choice == '5':
+    #
+    # elif choice == '6':
+        items_sold()
     elif choice == 'stop':
         quit()
 
@@ -42,6 +60,8 @@ def new_venue():
     venue_table()
     #add query
     cur.execute('INSERT INTO venues VALUES (?, ?, ?)', (None, ven_name, ven_date ))
+    list = cur.execute('SELECT * FROM venues')
+    print(list)
 
 
 def items_table():
@@ -70,10 +90,36 @@ def delete_item():
     global db
     global cur
     #show list of what you have already
-    cur.execute('SELECT * FROM itemStore').fetchall()
+    list = cur.execute('SELECT * FROM itemStore').fetchall()
+    print(list)
 
     id_item = input("Which item do you want to delete? ")
 
-    cur.execute('DELETE FROM itemStore WHERE id_item = ?', id_item)
+    cur.execute('DELETE FROM itemStore WHERE id_item = ?', (id_item,))
 
 #sold is a little different since its taking away from the items table
+# wanted to make it open so that the user a puts in all the info
+
+def items_sold_table():
+    global db
+    global cur
+
+    cur.execute('CREATE TABLE IF NOT EXISTS items_sold (item_sold_id INTEGER PRIMARY KEY,\
+         id_item INT REFERENCES itemStore(id_item), name_item char(50), price_item MONEY, qty_sold INT)')
+
+def items_sold():
+    global db
+    global cur
+
+    query = cur.execute('SELECT ven_name, name_item, SUM(qty_sold) FROM items_sold JOIN itemStore ON items_sold.id_item = itemStore.id_item \
+                            JOIN venues ON venues.ven_id = itemStore.ven_id WHERE items_sold.id_item = ?')
+
+    soldStuff = cur.execute(query, (id_item,))
+
+    for x in soldStuff:
+        print(x[2], x[1], ' sold at ', x[0])
+
+
+
+if __name__ == '__main__':
+    main()
